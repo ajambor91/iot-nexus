@@ -1,0 +1,55 @@
+# Java
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/wrapper/maven-wrapper.jar
+!/.mvn/wrapper/maven-wrapper.properties
+
+# Gradle
+.gradle/
+build/
+.DS_Store # Ignore macOS files if applicable
+*.log
+!gradle/wrapper/gradle-wrapper.jar
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# VS Code
+.vscode/
+
+# OS generated files
+.DS_Store
+.localized
+Thumbs.db
+
+# Unit test reports
+surefire-reports/
+failsafe-reports/
+
+# JaCoCo coverage reports
+jacoco/
+
+# SonarQube
+.sonar/
+
