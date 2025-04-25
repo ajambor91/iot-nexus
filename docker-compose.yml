@@ -1,29 +1,70 @@
 version: '3'
 services:
-  zookeeper:
-    image: zookeeper:latest
+  zookeeper-1:
+    image: confluentinc/cp-zookeeper:latest
+    hostname: zookeeper-1
+    container_name: zookeeper-1
     networks:
       - iot-nexus
-    deploy:
-      replicas: 3
-  kafka-broker:
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+    volumes:
+      - zookeeper-1-datalog:/datalog
+      - zookeeper-1-data:/data
+      - './IoTZookeeper/zoo.cfg:/etc/kafka/zookeeper.properties'
+    command: ["/bin/bash", "-c", "echo 1 > /var/lib/zookeeper/data/myid && exec /usr/bin/zookeeper-server-start /etc/kafka/zookeeper.properties"]
+  zookeeper-2:
+    image: confluentinc/cp-zookeeper:latest
+    hostname: zookeeper-2
+    container_name: zookeeper-2
+    networks:
+      - iot-nexus
+    environment:
+      ZOOKEEPER_SERVER_ID: 2
+      ZOOKEEPER_CLIENT_PORT: 2181
+    volumes:
+      - zookeeper-2-datalog:/datalog
+      - zookeeper-2-data:/data
+      - './IoTZookeeper/zoo.cfg:/etc/kafka/zookeeper.properties'
+    command: ["/bin/bash", "-c", "echo 2 > /var/lib/zookeeper/data/myid && exec /usr/bin/zookeeper-server-start /etc/kafka/zookeeper.properties"]
+  zookeeper-3:
+    image: confluentinc/cp-zookeeper:latest
+    hostname: zookeeper-3
+    container_name: zookeeper-3
+    networks:
+      - iot-nexus
+    environment:
+      ZOOKEEPER_SERVER_ID: 3
+      ZOOKEEPER_CLIENT_PORT: 2181
+    volumes:
+      - zookeeper-3-datalog:/datalog
+      - zookeeper-3-data:/data
+      - './IoTZookeeper/zoo.cfg:/etc/kafka/zookeeper.properties'
+    command: ["/bin/bash", "-c", "echo 3 > /var/lib/zookeeper/data/myid && exec /usr/bin/zookeeper-server-start /etc/kafka/zookeeper.properties"]
+
+  kafka-broker-1:
     depends_on:
-      - zookeeper
-    container_name: kafka-broker
-    hostname: kafka-broker
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+    container_name: kafka-broker-1
+    hostname: kafka-broker-1
     build:
       context: './IoTKafkaBroker'
     networks:
       - iot-nexus
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker:9092
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker-1:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
     volumes:
       - kafka-broker:/var/lib/kafka/data
   kafka-broker-2:
     depends_on:
-      - zookeeper
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
     container_name: kafka-broker-2
     hostname: kafka-broker-2
     build:
@@ -33,12 +74,14 @@ services:
     environment:
       KAFKA_BROKER_ID: 2
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker-2:9092
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
     volumes:
       - kafka-broker-2:/var/lib/kafka/data
   kafka-broker-3:
     depends_on:
-      - zookeeper
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
     container_name: kafka-broker-3
     hostname: kafka-broker-3
     build:
@@ -48,7 +91,7 @@ services:
     environment:
       KAFKA_BROKER_ID: 3
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker-3:9092
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
     volumes:
       - kafka-broker-3:/var/lib/kafka/data
   kafka-connect:
@@ -57,7 +100,7 @@ services:
     networks:
       - iot-nexus
     depends_on:
-      - kafka-broker
+      - kafka-broker-1
       - kafka-broker-2
       - kafka-broker-3
       - mqtt-mosquitto
@@ -73,6 +116,8 @@ services:
       - './IoTKafkaConnectGateway/nginx.conf:/etc/nginx/nginx.conf'
     networks:
       - iot-nexus
+    depends_on:
+      - kafka-connect
   mqtt-mosquitto:
     container_name: mqtt-mosquitto
     hostname: mqtt-mosquitto
@@ -109,7 +154,9 @@ services:
     networks:
       - iot-nexus
     depends_on:
-      - kafka-broker
+      - kafka-broker-1
+      - kafka-broker-2
+      - kafka-broker-3
       - kafka-connect
       - mqtt-mosquitto
   iot-storage-db:
@@ -152,4 +199,16 @@ volumes:
   kafka-broker-2:
     driver: local
   kafka-broker-3:
+    driver: local
+  zookeeper-1-data:
+    driver: local
+  zookeeper-2-data:
+    driver: local
+  zookeeper-3-data:
+    driver: local
+  zookeeper-1-datalog:
+    driver: local
+  zookeeper-2-datalog:
+    driver: local
+  zookeeper-3-datalog:
     driver: local

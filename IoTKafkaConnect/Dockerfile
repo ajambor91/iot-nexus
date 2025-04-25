@@ -1,6 +1,6 @@
 FROM confluentinc/cp-kafka-connect
 
-ENV CONNECT_BOOTSTRAP_SERVERS=kafka-broker:9092,kafka-broker-2:9092,kafka-broker-3:9092
+ENV CONNECT_BOOTSTRAP_SERVERS=kafka-broker-1:9092,kafka-broker-2:9092,kafka-broker-3:9092
 ENV CONNECT_REST_PORT=8083
 ENV CONNECT_GROUP_ID=connect-cluster
 ENV CONNECT_CONFIG_STORAGE_TOPIC=quickstart-config

@@ -19,7 +19,7 @@ public class StreamConfig {
     public KafkaStreamsConfiguration defaultKafkaStreamsConfig() {
         return new KafkaStreamsConfiguration(Map.of(
                 StreamsConfig.APPLICATION_ID_CONFIG, "iot-stream",
-                StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka-broker:9092",
+                StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka-broker-1:9092,kafka-broker-2:9092, kafka-broker-3:9092",
                 StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName(),
                 StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName()
         ));
